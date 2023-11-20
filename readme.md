@@ -1,10 +1,7 @@
 # CAPSTONE PROJECT - <u>Complete Face Generation From Partial Face Data</u>
 <hr>
 
-### Task/Modules with individual contribution
-1. U-Net [ Gautam, Jayasimha ]
-2. GAN [ Chirag, Hithesh]
-<hr>
+
 
 ### Capstone Pahse - I Summary
 
