@@ -26,3 +26,6 @@ The Phase 1 of our capstone project set the stage for the upcoming phases by est
 2. Use a code availabe at online to add mask to the faces
 3. Data preprocessing.
 4. Designing Low level architecute.
+5. Code Implementation
+6. Test Plans
+7. Final report
