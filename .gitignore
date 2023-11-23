@@ -14,4 +14,4 @@
 
 # Ignore temporary files
 *.tmp
-*Gan/inpainting.ipynb
+Gan/inpainting.ipynb
