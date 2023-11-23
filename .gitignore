@@ -11,8 +11,10 @@
 /Dataset/
 /AddOcclusion/
 /Models/
+/Fakeimage/
 
 # Ignore temporary files
 *.tmp
 Gan/inpainting.ipynb
 Unet/Unet.ipynb
+new.jpg
