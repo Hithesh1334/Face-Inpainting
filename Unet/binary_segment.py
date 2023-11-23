@@ -1,5 +1,4 @@
 import cv2
-import os
 import torch
 import numpy as np
 from torch import nn
@@ -23,6 +22,7 @@ class ContractingBlock(nn.Module):
         super(ContractingBlock,self).__init__()
         self.conv = nn.Conv2d(input_channels,input_channels*2,kernel_size=3,padding=1)
         self.activation = nn.LeakyReLU(0.2)
+        self.conv = nn.Conv2d(input_channels,input_channels*2,kernel_size=3,padding=1)
         self.maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
         if use_in:
             self.insnorm = nn.InstanceNorm2d(input_channels*2)
@@ -30,7 +30,7 @@ class ContractingBlock(nn.Module):
         if use_dropout:
             self.dropout = nn.Dropout()
         self.use_dropout = use_dropout
-    
+
     def forward(self,x):
         x = self.conv(x)
         if self.use_in:
@@ -92,14 +92,14 @@ class UNet(nn.Module):
         self.expand4 = ExpandingBlock(hidden_channels*2)
         self.downfeature = FeatureMapBlock(hidden_channels,output_channels)
         self.tanh = torch.nn.Tanh()
-    
+
     def forward(self,x):
         x0 = self.upfeature(x)
         x1 = self.contract1(x0)
         x2 = self.contract2(x1)
         x3 = self.contract3(x2)
         x4 = self.contract4(x3)    #x4:512
-        x5 = self.contract5(x4)    #x5:1024
+        x5 = self.contract5(x4)    #x5:1024 bottleneck layer
         x6 = self.expand0(x5,x4)
         x7 = self.expand1(x6,x3)
         x8 = self.expand2(x7,x2)
@@ -150,8 +150,6 @@ def binary_unet(img):
         gen_opt.load_state_dict(loaded_state["gen_opt"])
         disc.load_state_dict(loaded_state["disc"])
         disc_opt.load_state_dict(loaded_state["disc_opt"])
-    else:
-        pass 
 
     img = transform(img)
     img = img.detach().cpu().view(-1,*(3,224,224))
@@ -164,21 +162,7 @@ def binary_unet(img):
 
     kernel = np.ones((4,4),np.uint8)
     image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    ret, imgg = cv2.threshold(image,0.7,1,cv2.THRESH_BINARY)
+    ret, imgg = cv2.threshold(image,0.5,1,cv2.THRESH_BINARY)
     opening = cv2.morphologyEx(imgg, cv2.MORPH_OPEN, kernel)
 
     return opening
-
-# from PIL import Image
-# path = "E:/CSE/mask/MaskTheFace/dataset_masked"
-# outputPath = "E:/CSE/Face-Mask_Inpainting/output"
-# for i in os.listdir(path):
-#     path = os.path.join(path, i)
-#     masked = Image.open(path)
-#     masked = np.array(masked)
-#     masked = cv2.resize(masked,(224,224))
-#     binary = binary_unet(masked)
-#     # print(binary)
-#     outputPath = os.path.join(outputPath,i)
-#     cv2.imwrite(outputPath, binary)
-#     break

@@ -5,9 +5,6 @@ from streamlit_option_menu import option_menu
 from PIL import Image
 import cv2
 import numpy as np
-import os
-import imghdr
-import json
 import requests  
 from streamlit_lottie import st_lottie  
 import pandas as pd
@@ -22,8 +19,8 @@ lottie_hello = load_lottieurl("https://lottie.host/e0955ad6-b760-4959-831c-63af9
 
 box = option_menu(
     menu_title=None, 
-    options=["Home", "Upload your Image", "Training Analysis"], 
-    icons=['house', 'cloud-upload', "list-task"], 
+    options=["Home", "InPaint", "TrainInsight","Documentation"], 
+    icons=['house', 'cloud-upload', "list-task","book"], 
     menu_icon="cast", 
     default_index=0, 
     orientation="horizontal")
@@ -43,24 +40,21 @@ if box=="Home":
     speed=0.4,
     reverse=False,
     loop=True,
-    quality="high", # medium ; high
+    quality="high", 
     height=400,
     width=None,
     key=None,
 )
 
-elif box == "Upload your Image":
-    # st.sidebar.info('Upload ***single masked person*** image . For best results  ***center the face*** in the image, and the face mask should be preferably in ***light green/blue color***.')
+elif box == "InPaint":
     image = st.file_uploader("Upload your masked image here",type=['jpg','png','jpeg'])
     if image is not None:
         col1,col2 = st.columns(2)
         masked = Image.open(image).convert('RGB')
-        # original=origin
         print(masked,image.name,"Here")
         masked = np.array(masked)
         masked = cv2.resize(masked,(224,224))
-        
-        # original=origin
+
         print(masked,image.name,"Here")
         with col1:
             st.image(masked,width=300,caption="masked photo")
@@ -83,19 +77,51 @@ elif box == "Upload your Image":
         with col4:
             st.image(fake,width=300,caption="Inpainted photo")
         
-        fake = cv2.cvtColor(fake, cv2.COLOR_RGB2BGR)
-        upper_bound,lower_bound = 255,0 
-        fake = (fake - np.min(fake)) / (np.max(fake) - np.min(fake)) * (upper_bound - lower_bound) + lower_bound
-        print(fake)
 
-        fake_path = "E:/CSE/Capstone_Project/new.jpg"
-        cv2.imwrite(fake_path, fake)
+        # try:
+        #     fake = cv2.cvtColor(fake, cv2.COLOR_RGB2BGR)
+        #     upper_bound,lower_bound = 255,0 
+        #     fake = (fake - np.min(fake)) / (np.max(fake) - np.min(fake)) * (upper_bound - lower_bound) + lower_bound
+        #     print(fake)
+        #     fake_path = "E:/CSE/Capstone_Project/new.jpg"
+        #     cv2.imwrite(fake_path, fake)
+        #     files = {'image_file': open(fake_path, 'rb')}
+        #     response = requests.post(
+        #         "https://techhk.aoscdn.com/api/tasks/visual/scale",
+        #         headers={'X-API-KEY': 'wx5s7tg963m9im2t7'},
+        #         data={'sync': '1', 'type': 'face'},
+        #         files=files
+        #     )
+
+        #     print(response.status_code,"herererere")
+        #     if response.status_code == 200:
+        #         response_json = response.json()
+        #         if response_json['data']['state'] == 1:
+        #             image_url = response_json['data']['image']
+        #             image_response = requests.get(image_url)
+        #             print(response.text)
+        #             print("hi")
+        #             print(image_response)
+        #             if image_response.status_code== 200:
+        #                 img1 = Image.open(io.BytesIO(image_response.content))
+        #                 print("in")
+        #     #             st.image(img1, width=300, caption="Final Image from API")
+        #     #         else:
+        #     #             st.image(fake,width=300,caption="API image")
+        #     #     else:
+        #     #         st.image(fake,width=300,caption="API image")
+        #     # else:
+        #     #     st.image(fake,width=300,caption="API image")
+        # except:
+        #     # st.image(fake,width=300,caption="API image")
+        #     pass
+        
 
        
         
         
 
-elif box=="Training Analysis":
+elif box=="TrainInsight":
     # import random
     # f = pd.read_csv("data.csv",header=None)
     # print("Here this is f",f.iloc[:,0], "random",len(f.iloc[:21,0]))    

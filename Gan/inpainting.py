@@ -1,20 +1,8 @@
-# import os
-# import matplotlib.pyplot as plt
-# import glob
 import numpy as np
-# import cv2
-# import random
 import torch
 from torch import nn
-# import torchvision
 from torchvision import transforms
 from torchvision.utils import make_grid
-# from tqdm.auto import tqdm
-# from torch.utils.data import DataLoader
-# from torch.utils.data import Dataset
-# from PIL import Image
-# import random
-# torch.manual_seed(random.randint(1,1000))
 
 
 def crop(image,new_shape):
@@ -51,7 +39,7 @@ class ContractingBlock(nn.Module):
         x = self.maxpool(x)
         return x
 
-
+    
 class ExpandingBlock(nn.Module):
     def __init__(self,input_channels,use_in=True):
         super(ExpandingBlock,self).__init__()
@@ -71,8 +59,8 @@ class ExpandingBlock(nn.Module):
             x = self.insnorm(x)
         x = self.activation(x)
         return x
-
-
+    
+    
 class FeatureMapBlock(nn.Module):
     def __init__(self,input_channels,output_channels):
         super(FeatureMapBlock,self).__init__()
@@ -81,8 +69,8 @@ class FeatureMapBlock(nn.Module):
     def forward(self,x):
         x = self.conv(x)
         return x
-
-
+    
+    
 class SE_Block(nn.Module):
     def __init__(self,channels,reduction=16):
         super(SE_Block,self).__init__()
@@ -98,8 +86,8 @@ class SE_Block(nn.Module):
         y = self.squeeze(x).view(b,c)
         y = self.excitation(y).view(b,c,1,1)
         return x * y.expand_as(x)
-
-
+    
+    
 class AtrousConv(nn.Module):
     def __init__(self,input_channels):
         super(AtrousConv,self).__init__()
@@ -128,6 +116,7 @@ class AtrousConv(nn.Module):
         x = self.activation(x)
 
         return x
+    
 
 class UNet(nn.Module):
     def __init__(self,input_channels,output_channels,hidden_channels=32):
@@ -184,8 +173,8 @@ class Discriminator_whole(nn.Module):
         self.contract2 = ContractingBlock(hidden_channels*2)
         self.contract3 = ContractingBlock(hidden_channels*4)
         self.contract4 = ContractingBlock(hidden_channels*8)
-        self.final = nn.Conv2d(hidden_channels*16,1,kernel_size=1)
-
+        self.final = nn.Conv2d(hidden_channels*16,1,kernel_size=1)  
+        
     def forward(self,x,y):
         x = torch.cat([x,y],axis=1)
         x0 = self.upfeature(x)
@@ -195,7 +184,7 @@ class Discriminator_whole(nn.Module):
         x4 = self.contract4(x3)
         xn = self.final(x4)
         return xn
-    
+
 class Discriminator_mask(nn.Module):
     def __init__(self,input_channels,hidden_channels=8):
         super(Discriminator_mask,self).__init__()
@@ -217,12 +206,13 @@ class Discriminator_mask(nn.Module):
         x4 = self.contract4(x3)
         xn = self.final(x4)
         return xn
-    
+
+
 
 def inpaint_unet(masked,binary):
     transform = transforms.Compose([
-        transforms.ToTensor()
-        ])
+            transforms.ToTensor()
+            ])
 
     input_dim = 6
     output_dim = 3
@@ -237,8 +227,9 @@ def inpaint_unet(masked,binary):
     disc_mask = Discriminator_mask(disc_dim).to(device)
     disc_mask_opt = torch.optim.Adam(disc_mask.parameters(),lr=0.0001)
 
-    model_path = "E:/CSE/Capstone_Project/Models/Inpaint_5419700.pth"
+    model_path = "E:/CSE/Capstone_Project/Models/Inpaint_54197.pth"
     loaded_state = torch.load(model_path,map_location=torch.device('cpu'))  
+    print(loaded_state.keys())
     gen.load_state_dict(loaded_state["gen"])
     gen_opt.load_state_dict(loaded_state["gen_opt"])
     disc_whole.load_state_dict(loaded_state["disc_whole"])
@@ -262,5 +253,3 @@ def inpaint_unet(masked,binary):
     prediction = np.array(prediction.detach())
 
     return prediction
-if '__name__' == '__main__':
-    pass
