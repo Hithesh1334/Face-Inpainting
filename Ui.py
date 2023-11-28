@@ -86,37 +86,37 @@ elif box == "InPaint":
         print(fake)
         fake_path = "E:/CSE/Capstone_Project/Fakeimage/"+image.name
         cv2.imwrite(fake_path, fake)
-        # try:
-        #     files = {'image_file': open(fake_path, 'rb')}
-        #     response = requests.post(
-        #         "https://techhk.aoscdn.com/api/tasks/visual/scale",
-        #         headers={'X-API-KEY': 'wx5s7tg963m9im2t7'},
-        #         data={'sync': '1', 'type': 'face'},
-        #         files=files
-        #     )
+        try:
+            files = {'image_file': open(fake_path, 'rb')}
+            response = requests.post(
+                "https://techhk.aoscdn.com/api/tasks/visual/scale",
+                headers={'X-API-KEY': 'wxrip5cfm96ne5k5l'},
+                data={'sync': '1', 'type': 'face'},
+                files=files
+            )
 
-        #     print(response.status_code,"herererere")
-        #     if response.status_code == 200:
-        #         response_json = response.json()
-        #         if response_json['data']['state'] == 1:
-        #             image_url = response_json['data']['image']
-        #             image_response = requests.get(image_url)
-        #             print(response.text)
-        #             print("hi")
-        #             print(image_response)
-        #             if image_response.status_code== 200:
-        #                 img1 = Image.open(io.BytesIO(image_response.content))
-        #                 print("in")
-        #     #             st.image(img1, width=300, caption="Final Image from API")
-        #     #         else:
-        #     #             st.image(fake,width=300,caption="API image")
-        #     #     else:
-        #     #         st.image(fake,width=300,caption="API image")
-        #     # else:
-        #     #     st.image(fake,width=300,caption="API image")
-        # except:
-        #     # st.image(fake,width=300,caption="API image")
-        #     pass
+            print(response.status_code,"herererere")
+            if response.status_code == 200:
+                response_json = response.json()
+                if response_json['data']['state'] == 1:
+                    image_url = response_json['data']['image']
+                    image_response = requests.get(image_url)
+                    print(response.text)
+                    print("hi")
+                    print(image_response)
+                    if image_response.status_code== 200:
+                        img1 = Image.open(io.BytesIO(image_response.content))
+                        print("in")
+                        st.image(img1, width=300, caption="Final Image from API")
+            #         else:
+            #             st.image(fake,width=300,caption="API image")
+            #     else:
+            #         st.image(fake,width=300,caption="API image")
+            # else:
+            #     st.image(fake,width=300,caption="API image")
+        except:
+            # st.image(fake,width=300,caption="API image")
+            pass
         
 
        
@@ -128,11 +128,13 @@ elif box=="TrainInsight":
 
     ssim_loss = df["ssim_loss"]
     gen_loss = df["gen_loss"]
+    disc_whole_loss = df["mean_disc_whole_loss"]
+    disc_mask_loss = df["mean_disc_whole_loss"]
 
-    st.header("SSIM Value")
+    st.header("SSIM_Loss")
     average_value = 1-ssim_loss.mean()
-    min_value = 1-ssim_loss.min()
-    max_value = 1-ssim_loss.max()
+    min_value = ssim_loss.min()
+    max_value = ssim_loss.max()
     column_name = "ssim "    
     st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
     plot_data = pd.DataFrame({column_name: ssim_loss.values}, index=range(1, len(ssim_loss) + 1))
@@ -145,6 +147,24 @@ elif box=="TrainInsight":
     column_name = "gen_loss"    
     st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
     plot_data = pd.DataFrame({column_name: gen_loss.values}, index=range(1, len(gen_loss) + 1))
+    st.line_chart(plot_data)
+
+    st.header("mean_dis_whole_loss")
+    average_value = disc_whole_loss.mean()
+    min_value = disc_whole_loss.min()
+    max_value = disc_whole_loss.max()
+    column_name = "gen_loss"    
+    st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
+    plot_data = pd.DataFrame({column_name: disc_whole_loss.values}, index=range(1, len(disc_whole_loss) + 1))
+    st.line_chart(plot_data)
+
+    st.header("mean_dis_mask_loss")
+    average_value = disc_mask_loss.mean()
+    min_value = disc_mask_loss.min()
+    max_value = disc_mask_loss.max()
+    column_name = "gen_loss"    
+    st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
+    plot_data = pd.DataFrame({column_name: disc_mask_loss.values}, index=range(1, len(disc_mask_loss) + 1))
     st.line_chart(plot_data)
 
 elif box == "Documentation":
@@ -179,5 +199,5 @@ elif box == "Documentation":
         st.image(image_arr[i],width=230, use_column_width=False,caption=["Original","input","output"])
         print(image_path[i][0],image_path[i][1])
         res = calculate_ssim(image_path[i][0],image_path[i][1])
-        st.text(res-0.1)
+        st.text(1-res)
         
