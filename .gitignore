@@ -12,6 +12,7 @@
 /AddOcclusion/
 /Models/
 /Fakeimage/
+/FeedbackData/
 
 # Ignore temporary files
 *.tmp

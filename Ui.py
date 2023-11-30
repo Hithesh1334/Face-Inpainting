@@ -146,6 +146,13 @@ elif box == "InPaint":
             #     # st.image(fake,width=300,caption="API image")
             #     pass
     if image2 is not None:
+        print("---------------------",image2)
+        file_bytes = np.asarray(bytearray(image2.read()), dtype=np.uint8)
+        image = cv2.imdecode(file_bytes, 1)
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        save_path = "E:/CSE/Capstone_Project/FeedbackData/"
+        file_path = os.path.join(save_path, image2.name)
+        cv2.imwrite(file_path, cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR))
         st.text("Thank you for your feedback")
         
         
