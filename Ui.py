@@ -13,12 +13,33 @@ from Unet.binary_segment import binary_unet
 from Gan.inpainting import inpaint_unet
 from ssim import calculate_ssim
 
+import base64
+
+def get_base64(bin_file):
+    with open(bin_file,'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+
+
+def set_background(png_file):
+    bin_str = get_base64(png_file)
+    page_bg_img = "<style> .stApp{background-image: url('data:image/png;base64,%s');background-size: cover;background-repeat: no-repeat;}</style>"%bin_str  
+    st.markdown(page_bg_img,unsafe_allow_html=True)
+
+# set_background("E:\\CSE\\18129294.jpg")
+# set_background("E:\\CSE\\5758.jpg")
+set_background("E:\\CSE\\abstract.jpg")
+# set_background("E:\\CSE\\3326663.jpg")
+
+
 def load_lottieurl(url: str):
     r = requests.get(url)
     if r.status_code != 200:
         return None
     return r.json()
 lottie_hello = load_lottieurl("https://lottie.host/e0955ad6-b760-4959-831c-63af9f240283/PObNK5AnfK.json")
+
+
 
 box = option_menu(
     menu_title=None, 
@@ -50,76 +71,82 @@ if box=="Home":
 )
 
 elif box == "InPaint":
-    image = st.file_uploader("Upload your masked image here",type=['jpg','png','jpeg'])
+    mcol1,mcol2 = st.columns(2)
+    with mcol1:
+        image = st.file_uploader("Upload your masked image here",type=['jpg','png','jpeg'])
+        
+    with mcol2:
+        image2 = st.file_uploader("Upload the feedback image(*optional)",type=['jpg','png','jpeg'])
+        
+    
     if image is not None:
-        col1,col2 = st.columns(2)
-        masked = Image.open(image).convert('RGB')
-        print(masked,image.name,"Here")
-        masked = np.array(masked)
-        masked = cv2.resize(masked,(224,224))
+            col1,col2 = st.columns(2)
+            masked = Image.open(image).convert('RGB')
+            print(masked,image.name,"Here")
+            masked = np.array(masked)
+            masked = cv2.resize(masked,(224,224))
 
-        print(masked,image.name,"Here")
-        with col1:
-            st.image(masked,width=300,caption="masked photo")
-        binary = binary_unet(masked)
-        with col2:
-            st.image(binary,width=300,caption="binary segmentation map")
-        col3,col4 = st.columns(2)
-        try:
-            original = "E:/CSE/Capstone_Project/Dataset/GroundTruth/"+image.name
-            original = Image.open(original).convert('RGB')
-            original = np.array(original)
-            original = cv2.resize(original,(224,224))
-            print(original,'FFSJSDKJFDLSFK')
-            with col3:
-                st.image(original,width=300,caption="Original image")
-        except:
-            with col3:
-                st.image(masked,width=300,caption="Original image")
-        fake = inpaint_unet(masked,binary)
-        with col4:
-            st.image(fake,width=300,caption="Inpainted photo")
-        
-        fake = cv2.cvtColor(fake, cv2.COLOR_RGB2BGR)
-        upper_bound,lower_bound = 255,0 
-        fake = (fake - np.min(fake)) / (np.max(fake) - np.min(fake)) * (upper_bound - lower_bound) + lower_bound
-        print(fake)
-        fake_path = "E:/CSE/Capstone_Project/Fakeimage/"+image.name
-        cv2.imwrite(fake_path, fake)
-        try:
-            files = {'image_file': open(fake_path, 'rb')}
-            response = requests.post(
-                "https://techhk.aoscdn.com/api/tasks/visual/scale",
-                headers={'X-API-KEY': 'wxrip5cfm96ne5k5l'},
-                data={'sync': '1', 'type': 'face'},
-                files=files
-            )
+            print(masked,image.name,"Here")
+            with col1:
+                st.image(masked,width=300,caption="masked photo")
+            binary = binary_unet(masked)
+            with col2:
+                st.image(binary,width=300,caption="binary segmentation map")
+            col3,col4 = st.columns(2)
+            try:
+                original = "E:/CSE/Capstone_Project/Dataset/GroundTruth/"+image.name
+                original = Image.open(original).convert('RGB')
+                original = np.array(original)
+                original = cv2.resize(original,(224,224))
+                print(original,'FFSJSDKJFDLSFK')
+                with col3:
+                    st.image(original,width=300,caption="Original image")
+            except:
+                with col3:
+                    st.image(masked,width=300,caption="Original image")
+            fake = inpaint_unet(masked,binary)
+            with col4:
+                st.image(fake,width=300,caption="Inpainted photo")
+            
+            fake = cv2.cvtColor(fake, cv2.COLOR_RGB2BGR)
+            upper_bound,lower_bound = 255,0 
+            fake = (fake - np.min(fake)) / (np.max(fake) - np.min(fake)) * (upper_bound - lower_bound) + lower_bound
+            print(fake)
+            fake_path = "E:/CSE/Capstone_Project/Fakeimage/"+image.name
+            cv2.imwrite(fake_path, fake)
+            # try:
+            #     files = {'image_file': open(fake_path, 'rb')}
+            #     response = requests.post(
+            #         "https://techhk.aoscdn.com/api/tasks/visual/scale",
+            #         headers={'X-API-KEY': 'wxrip5cfm96ne5k5l'},
+            #         data={'sync': '1', 'type': 'face'},
+            #         files=files
+            #     )
 
-            print(response.status_code,"herererere")
-            if response.status_code == 200:
-                response_json = response.json()
-                if response_json['data']['state'] == 1:
-                    image_url = response_json['data']['image']
-                    image_response = requests.get(image_url)
-                    print(response.text)
-                    print("hi")
-                    print(image_response)
-                    if image_response.status_code== 200:
-                        img1 = Image.open(io.BytesIO(image_response.content))
-                        print("in")
-                        st.image(img1, width=300, caption="Final Image from API")
-            #         else:
-            #             st.image(fake,width=300,caption="API image")
-            #     else:
-            #         st.image(fake,width=300,caption="API image")
-            # else:
-            #     st.image(fake,width=300,caption="API image")
-        except:
-            # st.image(fake,width=300,caption="API image")
-            pass
-        
-
-       
+            #     print(response.status_code,"herererere")
+            #     if response.status_code == 200:
+            #         response_json = response.json()
+            #         if response_json['data']['state'] == 1:
+            #             image_url = response_json['data']['image']
+            #             image_response = requests.get(image_url)
+            #             print(response.text)
+            #             print("hi")
+            #             print(image_response)
+            #             if image_response.status_code== 200:
+            #                 img1 = Image.open(io.BytesIO(image_response.content))
+            #                 print("in")
+            #                 st.image(img1, width=300, caption="Final Image from API")
+            #     #         else:
+            #     #             st.image(fake,width=300,caption="API image")
+            #     #     else:
+            #     #         st.image(fake,width=300,caption="API image")
+            #     # else:
+            #     #     st.image(fake,width=300,caption="API image")
+            # except:
+            #     # st.image(fake,width=300,caption="API image")
+            #     pass
+    if image2 is not None:
+        st.text("Thank you for your feedback")
         
         
 
