@@ -209,7 +209,7 @@ class Discriminator_mask(nn.Module):
 
 
 
-def inpaint_unet(masked,binary):
+def inpaint_unet(masked,binary,model):
     transform = transforms.Compose([
             transforms.ToTensor()
             ])
@@ -227,7 +227,7 @@ def inpaint_unet(masked,binary):
     disc_mask = Discriminator_mask(disc_dim).to(device)
     disc_mask_opt = torch.optim.Adam(disc_mask.parameters(),lr=0.0001)
 
-    model_path = "E:/CSE/Capstone_Project/Models/Inpaint_54197.pth"
+    model_path = "E:/CSE/Capstone_Project/Models/"+model
     loaded_state = torch.load(model_path,map_location=torch.device('cpu'))  
     print(loaded_state.keys())
     gen.load_state_dict(loaded_state["gen"])

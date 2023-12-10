@@ -129,7 +129,7 @@ class Discriminator(nn.Module):
         return xn
 
 
-def binary_unet(img):
+def binary_unet(img,model):
     transform = transforms.Compose([
             transforms.ToTensor()
             ])
@@ -145,7 +145,8 @@ def binary_unet(img):
 
     pretrained = True
     if pretrained:
-        loaded_state = torch.load("E:/CSE/Capstone_Project/Models/Bi_UNet.pth",map_location=torch.device('cpu'))
+        model_path = "E:/CSE/Capstone_Project/Models/"+model
+        loaded_state = torch.load("E:/CSE/Capstone_Project/Models/unettest_24930.pth",map_location=torch.device('cpu'))
         gen.load_state_dict(loaded_state["gen"])
         gen_opt.load_state_dict(loaded_state["gen_opt"])
         disc.load_state_dict(loaded_state["disc"])

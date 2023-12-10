@@ -91,7 +91,7 @@ elif box == "InPaint":
                 print(masked,image.name,"Here")
                 with col1:
                     st.image(masked,width=300,caption="masked photo")
-                binary = binary_unet(masked,'unettest_24930.pth')
+                binary = binary_unet(masked)
                 with col2:
                     st.image(binary,width=300,caption="binary segmentation map")
                 col3,col4 = st.columns(2)
@@ -106,7 +106,7 @@ elif box == "InPaint":
                 except:
                     with col3:
                         st.image(masked,width=300,caption="Original image")
-                fake = inpaint_unet(masked,binary,"inpaint3.pth")
+                fake = inpaint_unet(masked,binary)
                 with col4:
                     st.image(fake,width=300,caption="Inpainted photo")
                 
@@ -157,89 +157,7 @@ elif box == "InPaint":
             cv2.imwrite(file_path, cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR))
             st.text("Thank you for your feedback")
     elif menu == "Specs Inpaint":
-        mcol1,mcol2 = st.columns(2)
-        with mcol1:
-            image = st.file_uploader("Upload your masked image here",type=['jpg','png','jpeg'])
-            
-        with mcol2:
-            image2 = st.file_uploader("Upload the feedback image(*optional)",type=['jpg','png','jpeg'])
-            
-        
-        if image is not None:
-                col1,col2 = st.columns(2)
-                masked = Image.open(image).convert('RGB')
-                print(masked,image.name,"Here")
-                masked = np.array(masked)
-                masked = cv2.resize(masked,(224,224))
-
-                print(masked,image.name,"Here")
-                with col1:
-                    st.image(masked,width=300,caption="masked photo")
-                binary = binary_unet(masked,"spec.pth")
-                with col2:
-                    st.image(binary,width=300,caption="binary segmentation map")
-                col3,col4 = st.columns(2)
-                try:
-                    original = "E:/CSE/Capstone_Project/Dataset/GroundTruth/"+image.name
-                    original = Image.open(original).convert('RGB')
-                    original = np.array(original)
-                    original = cv2.resize(original,(224,224))
-                    print(original,'FFSJSDKJFDLSFK')
-                    with col3:
-                        st.image(original,width=300,caption="Original image")
-                except:
-                    with col3:
-                        st.image(masked,width=300,caption="Original image")
-                fake = inpaint_unet(masked,binary,'specsinpaint.pth')
-                with col4:
-                    st.image(fake,width=300,caption="Inpainted photo")
-                
-                fake = cv2.cvtColor(fake, cv2.COLOR_RGB2BGR)
-                upper_bound,lower_bound = 255,0 
-                fake = (fake - np.min(fake)) / (np.max(fake) - np.min(fake)) * (upper_bound - lower_bound) + lower_bound
-                print(fake)
-                fake_path = "E:/CSE/Capstone_Project/Fakeimage/"+image.name
-                cv2.imwrite(fake_path, fake)
-                # try:
-                #     files = {'image_file': open(fake_path, 'rb')}
-                #     response = requests.post(
-                #         "https://techhk.aoscdn.com/api/tasks/visual/scale",
-                #         headers={'X-API-KEY': 'wxrip5cfm96ne5k5l'},
-                #         data={'sync': '1', 'type': 'face'},
-                #         files=files
-                #     )
-
-                #     print(response.status_code,"herererere")
-                #     if response.status_code == 200:
-                #         response_json = response.json()
-                #         if response_json['data']['state'] == 1:
-                #             image_url = response_json['data']['image']
-                #             image_response = requests.get(image_url)
-                #             print(response.text)
-                #             print("hi")
-                #             print(image_response)
-                #             if image_response.status_code== 200:
-                #                 img1 = Image.open(io.BytesIO(image_response.content))
-                #                 print("in")
-                #                 st.image(img1, width=300, caption="Final Image from API")
-                #     #         else:
-                #     #             st.image(fake,width=300,caption="API image")
-                #     #     else:
-                #     #         st.image(fake,width=300,caption="API image")
-                #     # else:
-                #     #     st.image(fake,width=300,caption="API image")
-                # except:
-                #     # st.image(fake,width=300,caption="API image")
-                #     pass
-        if image2 is not None:
-            print("---------------------",image2)
-            file_bytes = np.asarray(bytearray(image2.read()), dtype=np.uint8)
-            image = cv2.imdecode(file_bytes, 1)
-            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            save_path = "E:/CSE/Capstone_Project/FeedbackData/"
-            file_path = os.path.join(save_path, image2.name)
-            cv2.imwrite(file_path, cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR))
-            st.text("Thank you for your feedback")
+        st.text("Thank you")
         
         
 
@@ -252,7 +170,7 @@ elif box=="TrainInsight":
     disc_mask_loss = df["mean_disc_whole_loss"]
 
     st.header("SSIM_Loss")
-    average_value = ssim_loss.mean()
+    average_value = 1-ssim_loss.mean()
     min_value = ssim_loss.min()
     max_value = ssim_loss.max()
     column_name = "ssim "    
