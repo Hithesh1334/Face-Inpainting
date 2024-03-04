@@ -12,6 +12,7 @@ import pandas as pd
 from Unet.binary_segment import binary_unet
 from Gan.inpainting import inpaint_unet
 from ssim import calculate_ssim
+import time
 
 import base64
 
@@ -26,9 +27,9 @@ def set_background(png_file):
     page_bg_img = "<style> .stApp{background-image: url('data:image/png;base64,%s');background-size: cover;background-repeat: no-repeat;}</style>"%bin_str  
     st.markdown(page_bg_img,unsafe_allow_html=True)
 
-# set_background("E:\\CSE\\18129294.jpg")
+set_background("E:\\CSE\\18129294.jpg")
 # set_background("E:\\CSE\\5758.jpg")
-set_background("E:\\CSE\\abstract.jpg")
+# set_background("E:\\CSE\\abstract.jpg")
 # set_background("E:\\CSE\\3326663.jpg")
 
 
@@ -48,14 +49,6 @@ box = option_menu(
     menu_icon="cast", 
     default_index=0, 
     orientation="horizontal")
-def run_demo(name):
-    st.image("demo_imgs/gt_imgs/"+name+".jpg",width=450,caption="Ground Truth")
-    col1,col2 = st.columns(2)
-    with col1:
-        st.image("demo_imgs/masked_imgs/mask_"+name+".jpg",caption="Masked Photo")
-    with col2:
-        st.image("demo_imgs/binary_imgs/binary_"+name+".jpg",caption="Binary Segmentation Map")
-    st.image("demo_imgs/pred_imgs/fake_"+name+".jpg",width=450,caption="Face-Mask Inpainted Photo")
 
 if box=="Home":
     st.markdown("<h1 style='text-align: center; color: red;'>Wanna unmask face?</h1>", unsafe_allow_html=True)
@@ -70,7 +63,8 @@ if box=="Home":
     key=None,
 )
 
-elif box == "InPaint":
+if box == "InPaint":
+    
     menu = option_menu("Search",['Mask Inpaint','Specs Inpaint'],icons=['bi bi-person-fill','bi bi-emoji-sunglasses-fill'],orientation='horizontal')
     if menu == 'Mask Inpaint':
         mcol1,mcol2 = st.columns(2)
@@ -89,6 +83,8 @@ elif box == "InPaint":
                 masked = cv2.resize(masked,(224,224))
 
                 print(masked,image.name,"Here")
+                with st.spinner("Hang In there"):
+                    time.sleep(3)
                 with col1:
                     st.image(masked,width=300,caption="masked photo")
                 binary = binary_unet(masked,'unettest_24930.pth')
@@ -96,7 +92,7 @@ elif box == "InPaint":
                     st.image(binary,width=300,caption="binary segmentation map")
                 col3,col4 = st.columns(2)
                 try:
-                    original = "E:/CSE/Capstone_Project/Dataset/GroundTruth/"+image.name
+                    original = "C:/Users/Hithesh Patel/Downloads/dataset/GroundTruth/"+image.name
                     original = Image.open(original).convert('RGB')
                     original = np.array(original)
                     original = cv2.resize(original,(224,224))
@@ -116,37 +112,7 @@ elif box == "InPaint":
                 print(fake)
                 fake_path = "E:/CSE/Capstone_Project/Fakeimage/"+image.name
                 cv2.imwrite(fake_path, fake)
-                # try:
-                #     files = {'image_file': open(fake_path, 'rb')}
-                #     response = requests.post(
-                #         "https://techhk.aoscdn.com/api/tasks/visual/scale",
-                #         headers={'X-API-KEY': 'wxrip5cfm96ne5k5l'},
-                #         data={'sync': '1', 'type': 'face'},
-                #         files=files
-                #     )
-
-                #     print(response.status_code,"herererere")
-                #     if response.status_code == 200:
-                #         response_json = response.json()
-                #         if response_json['data']['state'] == 1:
-                #             image_url = response_json['data']['image']
-                #             image_response = requests.get(image_url)
-                #             print(response.text)
-                #             print("hi")
-                #             print(image_response)
-                #             if image_response.status_code== 200:
-                #                 img1 = Image.open(io.BytesIO(image_response.content))
-                #                 print("in")
-                #                 st.image(img1, width=300, caption="Final Image from API")
-                #     #         else:
-                #     #             st.image(fake,width=300,caption="API image")
-                #     #     else:
-                #     #         st.image(fake,width=300,caption="API image")
-                #     # else:
-                #     #     st.image(fake,width=300,caption="API image")
-                # except:
-                #     # st.image(fake,width=300,caption="API image")
-                #     pass
+                
         if image2 is not None:
             print("---------------------",image2)
             file_bytes = np.asarray(bytearray(image2.read()), dtype=np.uint8)
@@ -180,7 +146,7 @@ elif box == "InPaint":
                     st.image(binary,width=300,caption="binary segmentation map")
                 col3,col4 = st.columns(2)
                 try:
-                    original = "E:/CSE/Capstone_Project/Dataset/GroundTruth/"+image.name
+                    original = "C:/Users/Hithesh Patel/Downloads/dataset/GroundTruth/"+image.name
                     original = Image.open(original).convert('RGB')
                     original = np.array(original)
                     original = cv2.resize(original,(224,224))
@@ -200,37 +166,7 @@ elif box == "InPaint":
                 print(fake)
                 fake_path = "E:/CSE/Capstone_Project/Fakeimage/"+image.name
                 cv2.imwrite(fake_path, fake)
-                # try:
-                #     files = {'image_file': open(fake_path, 'rb')}
-                #     response = requests.post(
-                #         "https://techhk.aoscdn.com/api/tasks/visual/scale",
-                #         headers={'X-API-KEY': 'wxrip5cfm96ne5k5l'},
-                #         data={'sync': '1', 'type': 'face'},
-                #         files=files
-                #     )
-
-                #     print(response.status_code,"herererere")
-                #     if response.status_code == 200:
-                #         response_json = response.json()
-                #         if response_json['data']['state'] == 1:
-                #             image_url = response_json['data']['image']
-                #             image_response = requests.get(image_url)
-                #             print(response.text)
-                #             print("hi")
-                #             print(image_response)
-                #             if image_response.status_code== 200:
-                #                 img1 = Image.open(io.BytesIO(image_response.content))
-                #                 print("in")
-                #                 st.image(img1, width=300, caption="Final Image from API")
-                #     #         else:
-                #     #             st.image(fake,width=300,caption="API image")
-                #     #     else:
-                #     #         st.image(fake,width=300,caption="API image")
-                #     # else:
-                #     #     st.image(fake,width=300,caption="API image")
-                # except:
-                #     # st.image(fake,width=300,caption="API image")
-                #     pass
+                
         if image2 is not None:
             print("---------------------",image2)
             file_bytes = np.asarray(bytearray(image2.read()), dtype=np.uint8)
@@ -299,13 +235,13 @@ elif box == "Documentation":
 
     image_path = []
     fake_path = "E:/CSE/Capstone_Project/Fakeimage/"
-    input_path = "C:/Users/Hithesh Patel/Downloads/capstone1/capstone/GroundTruth_masked/"
-    original_path = "C:/Users/Hithesh Patel/Downloads/capstone1/capstone/GroundTruth/"
+    input_path = "C:/Users/Hithesh Patel/Downloads/dataset/GroundTruth_masked/"
+    original_path = "C:/Users/Hithesh Patel/Downloads/dataset/GroundTruth/"
     count = 0
     for path in os.listdir(fake_path):
         image_path.append([original_path+path,input_path+path,fake_path+path])
         count += 1
-        if count > 10:
+        if count > 20:
             break
     image_arr = [[] for _ in range(len(image_path))]
     for i in range(len(image_path)):

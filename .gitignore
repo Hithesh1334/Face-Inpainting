@@ -13,9 +13,18 @@
 /Models/
 /Fakeimage/
 /FeedbackData/
+/docs/
+/share/
 
 # Ignore temporary files
 *.tmp
 Gan/inpainting.ipynb
 Unet/Unet.ipynb
 new.jpg
+code_and_executables.zip
+Low_level_design_and_Implementation_details.pdf
+PW23_PP_06.zip
+PW23_PP_06_Report.pdf
+PW23_PP_06_POSTER.pdf
+PW23_PP_06_video.mp4
+PW23_PP_06_plagiarism_report.pdf
