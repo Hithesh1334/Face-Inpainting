@@ -40,7 +40,7 @@ lottie_hello = load_lottieurl("https://lottie.host/e0955ad6-b760-4959-831c-63af9
 
 box = option_menu(
     menu_title=None, 
-    options=["Home", "InPaint", "TrainInsight","Documentation"], 
+    options=["Home", "InPaint","Model Results"], 
     icons=['house', 'cloud-upload', "list-task","book"], 
     menu_icon="cast", 
     default_index=0, 
@@ -61,7 +61,7 @@ if box=="Home":
 
 if box == "InPaint":
     
-    menu = option_menu("Search",['Mask Inpaint','Specs Inpaint'],icons=['bi bi-person-fill','bi bi-emoji-sunglasses-fill'],orientation='horizontal')
+    menu = option_menu("Select",['Mask Inpaint','Specs Inpaint'],icons=['bi bi-person-fill','bi bi-emoji-sunglasses-fill'],orientation='horizontal')
     if menu == 'Mask Inpaint':
         mcol1,mcol2 = st.columns(2)
         with mcol1:
@@ -174,52 +174,7 @@ if box == "InPaint":
             st.text("Thank you for your feedback")
         
         
-
-elif box=="TrainInsight":
-    df = pd.read_csv("E:/CSE/Capstone_Project/Files/data.csv")
-
-    ssim_loss = df["ssim_loss"]
-    gen_loss = df["gen_loss"]
-    disc_whole_loss = df["mean_disc_whole_loss"]
-    disc_mask_loss = df["mean_disc_whole_loss"]
-
-    st.header("SSIM_Loss")
-    average_value = ssim_loss.mean()
-    min_value = ssim_loss.min()
-    max_value = ssim_loss.max()
-    column_name = "ssim "    
-    st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
-    plot_data = pd.DataFrame({column_name: ssim_loss.values}, index=range(1, len(ssim_loss) + 1))
-    st.line_chart(plot_data)
-    
-    st.header("Gen_Loss")
-    average_value = gen_loss.mean()
-    min_value = gen_loss.min()
-    max_value = gen_loss.max()
-    column_name = "gen_loss"    
-    st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
-    plot_data = pd.DataFrame({column_name: gen_loss.values}, index=range(1, len(gen_loss) + 1))
-    st.line_chart(plot_data)
-
-    st.header("mean_dis_whole_loss")
-    average_value = disc_whole_loss.mean()
-    min_value = disc_whole_loss.min()
-    max_value = disc_whole_loss.max()
-    column_name = "gen_loss"    
-    st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
-    plot_data = pd.DataFrame({column_name: disc_whole_loss.values}, index=range(1, len(disc_whole_loss) + 1))
-    st.line_chart(plot_data)
-
-    st.header("mean_dis_mask_loss")
-    average_value = disc_mask_loss.mean()
-    min_value = disc_mask_loss.min()
-    max_value = disc_mask_loss.max()
-    column_name = "gen_loss"    
-    st.text(f"max:{max_value}\nmin:{min_value}\navg:{average_value}")
-    plot_data = pd.DataFrame({column_name: disc_mask_loss.values}, index=range(1, len(disc_mask_loss) + 1))
-    st.line_chart(plot_data)
-
-elif box == "Documentation":
+elif box == "Model Results":
 
     image_path = []
     fake_path = "E:/CSE/Capstone_Project/Fakeimage/"
