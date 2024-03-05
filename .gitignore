@@ -13,9 +13,9 @@
 /Models/
 /Fakeimage/
 /FeedbackData/
-/share/
+/mixfiles/
 /docs/
-/share/
+
 
 # Ignore temporary files
 *.tmp
