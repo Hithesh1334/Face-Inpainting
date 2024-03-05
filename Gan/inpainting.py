@@ -60,7 +60,6 @@ class ExpandingBlock(nn.Module):
         x = self.activation(x)
         return x
     
-    
 class FeatureMapBlock(nn.Module):
     def __init__(self,input_channels,output_channels):
         super(FeatureMapBlock,self).__init__()
@@ -163,8 +162,6 @@ class UNet(nn.Module):
         xn = self.downfeature(x10)
 
         return self.tanh(xn)
-
-
 class Discriminator_whole(nn.Module):
     def __init__(self,input_channels,hidden_channels=8):
         super(Discriminator_whole,self).__init__()
@@ -217,7 +214,7 @@ def inpaint_unet(masked,binary,model):
     input_dim = 6
     output_dim = 3
     disc_dim = 9
-    lr = 0.0003
+    lr = 0.0004
     device = 'cpu'
 
     gen = UNet(input_dim,output_dim).to(device)

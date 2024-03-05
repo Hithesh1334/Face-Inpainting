@@ -13,14 +13,13 @@ from Unet.binary_segment import binary_unet
 from Gan.inpainting import inpaint_unet
 from ssim import calculate_ssim
 import time
-
 import base64
+
 
 def get_base64(bin_file):
     with open(bin_file,'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
-
 
 def set_background(png_file):
     bin_str = get_base64(png_file)
@@ -32,15 +31,12 @@ set_background("E:\\CSE\\18129294.jpg")
 # set_background("E:\\CSE\\abstract.jpg")
 # set_background("E:\\CSE\\3326663.jpg")
 
-
 def load_lottieurl(url: str):
     r = requests.get(url)
     if r.status_code != 200:
         return None
     return r.json()
 lottie_hello = load_lottieurl("https://lottie.host/e0955ad6-b760-4959-831c-63af9f240283/PObNK5AnfK.json")
-
-
 
 box = option_menu(
     menu_title=None, 
@@ -224,14 +220,6 @@ elif box=="TrainInsight":
     st.line_chart(plot_data)
 
 elif box == "Documentation":
-    # def read_markdown_file(file_path):
-    #     with open(file_path, 'r', encoding='utf-8') as file:
-    #         content = file.read()
-    #     return content
-
-    # readme_path = 'E:/CSE/Capstone_Project/readme.md'  # Replace with the actual path to your 
-    # markdown_content = read_markdown_file(readme_path)
-    # st.markdown(markdown_content, unsafe_allow_html=True)
 
     image_path = []
     fake_path = "E:/CSE/Capstone_Project/Fakeimage/"

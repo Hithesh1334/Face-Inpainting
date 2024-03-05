@@ -74,8 +74,6 @@ class FeatureMapBlock(nn.Module):
     def forward(self,x):
         x = self.conv(x)
         return x
-
-
 class UNet(nn.Module):
     def __init__(self,input_channels,output_channels,hidden_channels=32):
         super(UNet,self).__init__()
@@ -98,8 +96,8 @@ class UNet(nn.Module):
         x1 = self.contract1(x0)
         x2 = self.contract2(x1)
         x3 = self.contract3(x2)
-        x4 = self.contract4(x3)    #x4:512
-        x5 = self.contract5(x4)    #x5:1024 bottleneck layer
+        x4 = self.contract4(x3)    
+        x5 = self.contract5(x4)    
         x6 = self.expand0(x5,x4)
         x7 = self.expand1(x6,x3)
         x8 = self.expand2(x7,x2)
