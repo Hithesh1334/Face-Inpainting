@@ -115,7 +115,7 @@ class Discriminator(nn.Module):
         self.contract2 = ContractingBlock(hidden_channels*2)
         self.contract3 = ContractingBlock(hidden_channels*4)
         self.contract4 = ContractingBlock(hidden_channels*8)
-        self.final = nn.Conv2d(hidden_channels*16,1,kernel_size=1)   #should change?
+        self.final = nn.Conv2d(hidden_channels*16,1,kernel_size=1)   
         
     def forward(self,x): 
         x0 = self.upfeature(x)
@@ -133,8 +133,8 @@ def binary_unet(img,model):
             ])
 
     input_dim = 3
-    binary_dim = 1         # (-1,1,224,224)
-    lr = 0.0002
+    binary_dim = 1       
+    lr = 0.0003
     device = 'cpu'
     gen = UNet(input_dim,binary_dim).to(device)
     gen_opt = torch.optim.Adam(gen.parameters(),lr=lr)
@@ -154,7 +154,7 @@ def binary_unet(img,model):
     img = img.detach().cpu().view(-1,*(3,224,224))
     image_tensor = gen(img)
     image_tensor = (image_tensor + 1) / 2
-    #image_tensor = image_tensor.detach().cpu().view(-1, *(1,224,224))
+    
     image_grid = make_grid(image_tensor[:1], nrow=5)
     image_tensor = image_grid.permute(1, 2, 0).squeeze()
     image = np.array(image_tensor)
