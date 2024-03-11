@@ -1,32 +1,32 @@
 import numpy as np
 import torch
-from torch import nn
-from torchvision import transforms
+from torch import t
 from torchvision.utils import make_grid
+from torchvision import transforms
 
 
-def crop(image,new_shape):
+def resizeImage(image,new_shape):
     middle_height = image.shape[2]//2
     middle_width = image.shape[3]//2
     starting_height = middle_height-round(new_shape[2]/2)
     final_height = starting_height+new_shape[2]
     starting_width = middle_width-round(new_shape[3]/2)
     final_width = starting_width+new_shape[3]
-    cropped_image = image[:,:,starting_height:final_height,starting_width:final_width]
-    return cropped_image
+    resize_image = image[:,:,starting_height:final_height,starting_width:final_width]
+    return resize_image
 
 
-class ContractingBlock(nn.Module):
+class ContractingBlock(t.Module):
     def __init__(self,input_channels,use_in=True,use_dropout=False):
         super(ContractingBlock,self).__init__()
-        self.conv = nn.Conv2d(input_channels,input_channels*2,kernel_size=3,padding=1)
-        self.activation = nn.LeakyReLU(0.2)
-        self.maxpool = nn.MaxPool2d(kernel_size=2,stride=2)
+        self.conv = t.Conv2d(input_channels,input_channels*2,kernel_size=3,padding=1)
+        self.activation = t.LeakyReLU(0.2)
+        self.maxpool = t.MaxPool2d(kernel_size=2,stride=2)
         if use_in:
-            self.insnorm = nn.InstanceNorm2d(input_channels*2)
+            self.insnorm = t.InstanceNorm2d(input_channels*2)
         self.use_in = use_in
         if use_dropout:
-            self.drop = nn.Dropout()
+            self.drop = t.Dropout()
         self.use_dropout = use_dropout
 
     def forward(self,x):
@@ -40,19 +40,19 @@ class ContractingBlock(nn.Module):
         return x
 
     
-class ExpandingBlock(nn.Module):
+class ExpandingBlock(t.Module):
     def __init__(self,input_channels,use_in=True):
         super(ExpandingBlock,self).__init__()
-        self.tconv = nn.ConvTranspose2d(input_channels,input_channels//2,kernel_size=3,stride=2,padding=1,output_padding=1)
-        self.conv2 = nn.Conv2d(input_channels,input_channels//2,kernel_size=3,padding=1)
-        self.activation = nn.LeakyReLU(0.2)
+        self.tconv = t.ConvTranspose2d(input_channels,input_channels//2,kernel_size=3,stride=2,padding=1,output_padding=1)
+        self.conv2 = t.Conv2d(input_channels,input_channels//2,kernel_size=3,padding=1)
+        self.activation = t.LeakyReLU(0.2)
         if use_in:
-            self.insnorm = nn.InstanceNorm2d(input_channels//2)
+            self.insnorm = t.InstanceNorm2d(input_channels//2)
         self.use_in = use_in
 
     def forward(self,x,skip_x):
         x = self.tconv(x)
-        skip_x = crop(skip_x,x.shape)
+        skip_x = resizeImage(skip_x,x.shape)
         x = torch.cat([x,skip_x],axis=1)
         x = self.conv2(x)
         if self.use_in:
@@ -60,25 +60,25 @@ class ExpandingBlock(nn.Module):
         x = self.activation(x)
         return x
     
-class FeatureMapBlock(nn.Module):
+class FeatureMapBlock(t.Module):
     def __init__(self,input_channels,output_channels):
         super(FeatureMapBlock,self).__init__()
-        self.conv = nn.Conv2d(input_channels,output_channels,kernel_size=1)
+        self.conv = t.Conv2d(input_channels,output_channels,kernel_size=1)
 
     def forward(self,x):
         x = self.conv(x)
         return x
     
     
-class SE_Block(nn.Module):
+class SE_Block(t.Module):
     def __init__(self,channels,reduction=16):
         super(SE_Block,self).__init__()
-        self.squeeze = nn.AdaptiveAvgPool2d(1)
-        self.excitation = nn.Sequential(
-            nn.Linear(channels,channels//reduction,bias=False),
-            nn.ReLU(inplace=True),
-            nn.Linear(channels//reduction,channels,bias=False),
-            nn.Sigmoid()
+        self.squeeze = t.AdaptiveAvgPool2d(1)
+        self.excitation = t.Sequential(
+            t.Linear(channels,channels//reduction,bias=False),
+            t.ReLU(inplace=True),
+            t.Linear(channels//reduction,channels,bias=False),
+            t.Sigmoid()
         )
     def forward(self,x):
         b, c, _, _ = x.shape
@@ -87,15 +87,15 @@ class SE_Block(nn.Module):
         return x * y.expand_as(x)
     
     
-class AtrousConv(nn.Module):
+class AtrousConv(t.Module):
     def __init__(self,input_channels):
         super(AtrousConv,self).__init__()
-        self.aconv2 = nn.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=2,padding=2)
-        self.aconv4 = nn.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=4,padding=4)
-        self.aconv8 = nn.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=8,padding=8)
-        self.aconv16 = nn.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=16,padding=16)
-        self.batchnorm = nn.BatchNorm2d(input_channels)
-        self.activation = nn.ReLU()
+        self.aconv2 = t.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=2,padding=2)
+        self.aconv4 = t.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=4,padding=4)
+        self.aconv8 = t.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=8,padding=8)
+        self.aconv16 = t.Conv2d(input_channels,input_channels,kernel_size=3,stride=1,dilation=16,padding=16)
+        self.batchnorm = t.BatchNorm2d(input_channels)
+        self.activation = t.ReLU()
 
     def forward(self,x):
         x = self.aconv2(x)
@@ -117,7 +117,7 @@ class AtrousConv(nn.Module):
         return x
     
 
-class UNet(nn.Module):
+class UNet(t.Module):
     def __init__(self,input_channels,output_channels,hidden_channels=32):
         super(UNet,self).__init__()
         self.upfeature = FeatureMapBlock(input_channels,hidden_channels)
@@ -140,7 +140,7 @@ class UNet(nn.Module):
         self.se2 = SE_Block(hidden_channels*4)
         self.se3 = SE_Block(hidden_channels*8)
 
-        self.tanh = torch.nn.Tanh()
+        self.tanh = torch.t.Tanh()
 
 
     def forward(self,x):
@@ -162,7 +162,7 @@ class UNet(nn.Module):
         xn = self.downfeature(x10)
 
         return self.tanh(xn)
-class Discriminator_whole(nn.Module):
+class Discriminator_whole(t.Module):
     def __init__(self,input_channels,hidden_channels=8):
         super(Discriminator_whole,self).__init__()
         self.upfeature = FeatureMapBlock(input_channels,hidden_channels)
@@ -170,7 +170,7 @@ class Discriminator_whole(nn.Module):
         self.contract2 = ContractingBlock(hidden_channels*2)
         self.contract3 = ContractingBlock(hidden_channels*4)
         self.contract4 = ContractingBlock(hidden_channels*8)
-        self.final = nn.Conv2d(hidden_channels*16,1,kernel_size=1)  
+        self.final = t.Conv2d(hidden_channels*16,1,kernel_size=1)  
         
     def forward(self,x,y):
         x = torch.cat([x,y],axis=1)
@@ -182,7 +182,7 @@ class Discriminator_whole(nn.Module):
         xn = self.final(x4)
         return xn
 
-class Discriminator_mask(nn.Module):
+class Discriminator_mask(t.Module):
     def __init__(self,input_channels,hidden_channels=8):
         super(Discriminator_mask,self).__init__()
         self.upfeature = FeatureMapBlock(input_channels,hidden_channels)
@@ -190,8 +190,8 @@ class Discriminator_mask(nn.Module):
         self.contract2 = ContractingBlock(hidden_channels*2)
         self.contract3 = ContractingBlock(hidden_channels*4)
         self.contract4 = ContractingBlock(hidden_channels*8)
-        self.final = nn.Conv2d(hidden_channels*16,1,kernel_size=1)
-        self.dropout = nn.Dropout()
+        self.final = t.Conv2d(hidden_channels*16,1,kernel_size=1)
+        self.dropout = t.Dropout()
 
     def forward(self,x,y):
         x = torch.cat([x,y],axis=1)
